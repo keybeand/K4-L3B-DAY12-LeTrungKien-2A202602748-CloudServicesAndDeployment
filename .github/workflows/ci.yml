@@ -24,8 +24,11 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run pytest
+        env:
+          AGENT_API_KEY: "ci-test-key-12345"
         run: |
           pytest tests/ -v --ignore=tests/test_cp5.py
+
 
   build:
     runs-on: ubuntu-latest

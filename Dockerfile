@@ -21,14 +21,44 @@
 #            docker images day12-agent:prod     # xem dung lượng
 # ═══════════════════════════════════════════════════════════════════
 
-FROM python:3.11
+# Stage 1: builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-COPY . .
+# Copy requirements file first to utilize Docker layer caching
+COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+# Install dependencies into user directory
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Stage 2: runner
+FROM python:3.11-slim AS runner
+
+WORKDIR /app
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser
+
+# Copy installed packages from builder
+COPY --from=builder /root/.local /home/appuser/.local
+
+# Copy application source code
+COPY app /app/app
+COPY utils /app/utils
+
+# Change ownership of working directory to appuser
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
+ENV PATH="/home/appuser/.local/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
 EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+

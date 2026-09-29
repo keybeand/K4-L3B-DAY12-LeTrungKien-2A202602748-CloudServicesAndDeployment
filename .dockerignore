@@ -4,3 +4,11 @@
 
 .git
 .gitignore
+.env
+.venv
+__pycache__
+tests
+screenshots
+exercises.md
+DEPLOYMENT.md
+

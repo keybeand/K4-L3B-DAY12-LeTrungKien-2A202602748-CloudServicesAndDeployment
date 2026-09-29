@@ -25,9 +25,10 @@ jobs:
 
       - name: Run pytest
         env:
-          AGENT_API_KEY: "ci-test-key-12345"
+          AGENT_API_KEY: ${{ secrets.AGENT_API_KEY || 'testkey' }}
         run: |
           pytest tests/ -v --ignore=tests/test_cp5.py
+
 
 
   build:

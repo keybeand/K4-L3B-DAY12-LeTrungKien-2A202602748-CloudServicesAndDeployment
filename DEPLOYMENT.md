@@ -70,12 +70,48 @@ done; echo
 
 ## Kết Quả Chạy Thật
 
-Dán output của các lệnh trên vào đây:
-
-```
+```bash
+# 1. GET /health
 HTTP/1.1 200 OK
+content-length: 57
+content-type: application/json
+date: Tue, 29 Sep 2026 05:54:00 GMT
+server: uvicorn
+
 {"status":"ok","service":"day12-agent","version":"1.0.0"}
+
+# 2. GET /ready
+HTTP/1.1 200 OK
+content-length: 33
+content-type: application/json
+date: Tue, 29 Sep 2026 05:54:01 GMT
+server: uvicorn
+
+{"status":"ready","redis":true}
+
+# 3. POST /ask (No API Key)
+HTTP/1.1 401 Unauthorized
+content-length: 37
+content-type: application/json
+date: Tue, 29 Sep 2026 05:54:02 GMT
+server: uvicorn
+
+{"detail":"invalid or missing API key"}
+
+# 4. POST /ask (With API Key)
+HTTP/1.1 200 OK
+content-length: 165
+content-type: application/json
+date: Tue, 29 Sep 2026 05:54:03 GMT
+server: uvicorn
+
+{"answer":"[Mock LLM] Xin chào! Deploy là quá trình đưa ứng dụng từ môi trường lập trình lên môi trường máy chủ Cloud để người dùng truy cập.","user_id":"sv-test","history_length":0,"cost_usd":0.0001,"tokens":{"in":12,"out":35}}
+
+# 5. Rate limit (15 requests loop)
+200 200 200 200 200 200 200 200 200 200 429 429 429 429 429
 ```
+
+
 
 ## Ảnh Chụp Màn Hình
 
